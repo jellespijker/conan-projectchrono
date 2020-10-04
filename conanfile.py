@@ -10,61 +10,61 @@ class ProjectChronoConan(ConanFile):
     homepage = "https://github.com/projectchrono/chrono"
     license = "AGPL3"
     # exports_sources = ["CMakeLists.txt", "patches/*.patch"]
-    generators = "cmake"  #, "cmake_find_package", "cmake_paths"
+    generators = "cmake", "cmake_find_package", "cmake_paths"
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
                "fPIC": [True, False],
-               "openMP": ["On", "Off"],
-               "TBB": ["On", "Off"],
-               "HDF5": ["On", "Off"],
-               "benchmarking": ["On", "Off"],
-               "demos": ["On", "Off"],
-               "tests": ["On", "Off"],
-               "unit_cascade": ["On", "Off"],  # Not yet implemented
-               "module_cosimulation": ["On", "Off"],
-               "module_distributed": ["On", "Off"],
-               "module_irrlicht": ["On", "Off"],
-               "module_matlab": ["On", "Off"],
-               "module_mkl": ["On", "Off"],  #  Not yet implemented
-               "module_mumps": ["On", "Off"],  # Not yet implemented
-               "module_parallel": ["On", "Off"],
-               "module_opengl": ["On", "Off"],
-               "module_ogre": ["On", "Off"],
-               "module_postprocess": ["On", "Off"],
-               "module_python": ["On", "Off"],
-               "module_vehicle": ["On", "Off"],
-               "module_fsi": ["On", "Off"],
-               "use_bullet_double": ["On", "Off"],
-               "module_granular": ["On", "Off"],
-               "use_parallel_cuda": ["On", "Off"],  # Not yet implemented
-               "use_parallel_double": ["On", "Off"]}
+               "openMP": [True, False],
+               "TBB": [True, False],
+               "HDF5": [True, False],
+               "benchmarking": [True, False],
+               "demos": [True, False],
+               "tests": [True, False],
+               "unit_cascade": [True, False],  # Not yet implemented
+               "module_cosimulation": [True, False],
+               "module_distributed": [True, False],
+               "module_irrlicht": [True, False],
+               "module_matlab": [True, False],
+               "module_mkl": [True, False],  #  Not yet implemented
+               "module_mumps": [True, False],  # Not yet implemented
+               "module_parallel": [True, False],
+               "module_opengl": [True, False],
+               "module_ogre": [True, False],
+               "module_postprocess": [True, False],
+               "module_python": [True, False],
+               "module_vehicle": [True, False],
+               "module_fsi": [True, False],
+               "use_bullet_double": [True, False],
+               "module_granular": [True, False],
+               "use_parallel_cuda": [True, False],  # Not yet implemented
+               "use_parallel_double": [True, False]}
     default_options = {"shared": True,
                        "fPIC": True,
-                       "openMP": "Off",
-                       "TBB": "On",
-                       "HDF5": "Off",
-                       "benchmarking": "Off",
-                       "demos": "Off",
-                       "tests": "Off",
-                       "unit_cascade": "Off",
-                       "module_cosimulation": "Off",
-                       "module_distributed": "Off",
-                       "module_irrlicht": "On",
-                       "module_matlab": "Off",
-                       "module_mkl": "Off",
-                       "module_mumps": "Off",
-                       "module_parallel": "Off",
-                       "module_opengl": "Off",
-                       "module_ogre": "Off",
-                       "module_postprocess": "Off",
-                       "module_python": "Off",
-                       "module_vehicle": "Off",
-                       "module_fsi": "Off",
-                       "use_bullet_double": "Off",
-                       "module_granular": "Off",
-                       "use_parallel_cuda": "Off",
-                       "use_parallel_double": "On"}
+                       "openMP": False,
+                       "TBB": True,
+                       "HDF5": False,
+                       "benchmarking": False,
+                       "demos": False,
+                       "tests": False,
+                       "unit_cascade": False,
+                       "module_cosimulation": False,
+                       "module_distributed": False,
+                       "module_irrlicht": False,
+                       "module_matlab": False,
+                       "module_mkl": False,
+                       "module_mumps": False,
+                       "module_parallel": False,
+                       "module_opengl": False,
+                       "module_ogre": False,
+                       "module_postprocess": False,
+                       "module_python": False,
+                       "module_vehicle": False,
+                       "module_fsi": False,
+                       "use_bullet_double": False,
+                       "module_granular": False,
+                       "use_parallel_cuda": False,
+                       "use_parallel_double": True}
 
     _source_subfolder = "src"
     _build_folder = "build"
@@ -82,36 +82,38 @@ class ProjectChronoConan(ConanFile):
         tools.replace_in_file("src/CMakeLists.txt", "project(Chrono VERSION ${CHRONO_VERSION_MAJOR}.${CHRONO_VERSION_MINOR}.${CHRONO_VERSION_PATCH})",
                               '''project(Chrono VERSION ${CHRONO_VERSION_MAJOR}.${CHRONO_VERSION_MINOR}.${CHRONO_VERSION_PATCH})
 include(${CMAKE_BINARY_DIR}/../conanbuildinfo.cmake)
-conan_basic_setup()''')
+conan_basic_setup()
+include_directories(CONAN_INCLUDE_DIRS_IRRLICHT)''')
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def requirements(self):
-        if self.options.openMP == "On":  # and str(self.settings.compiler) == 'clang':
+        if self.options.openMP:  # and str(self.settings.compiler) == 'clang':
             self.requires.add("llvm-openmp/10.0.0")
-        if self.options.TBB == "On":
+        if self.options.TBB:
             self.requires.add("tbb/2020.1")
         self.requires.add("zlib/1.2.11")
         self.requires.add("openmpi/3.1.2@jellespijker/testing")
-        self.requires.add("eigen/3.3.7@conan/stable")
-        if self.options.HDF5 == "On":
+        self.requires.add("eigen/3.3.7")
+        if self.options.HDF5:
             self.requires.add("hdf5/1.12.0")
-        if self.options.module_irrlicht == "On":
+        if self.options.module_irrlicht:
             self.requires.add("irrlicht/1.8.4@jellespijker/testing")
-        if self.options.module_mumps == "On":
+            self.requires.add("openssl/1.1.1g")
+        if self.options.module_mumps:
             # self.requires.add("mumps")
             self.requires.add("openblas/0.3.10")
-        if self.options.module_opengl == "On":
+        if self.options.module_opengl:
             self.requires.add("opengl/system")
             self.requires.add("glm/0.9.9.8")
             self.requires.add("glew/2.1.0")
             self.requires.add("glfw/3.3.2")
-        if self.options.module_parallel == "On":
+        if self.options.module_parallel:
             self.requires.add("thrust/1.9.5")
             self.requires.add("blaze/3.7")
-        if self.options.module_python == "On":
+        if self.options.module_python:
             self.requires.add("swig/4.0.1")
 
 
